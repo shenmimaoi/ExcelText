@@ -70,9 +70,9 @@ Excel 数据处理小工具集（免安装，双击即用）。
 
 ## 使用方法
 
-1. 到 [Releases](../../releases) 下载需要的 `.exe`
-2. 双击运行（Windows）
-3. 按界面提示选择文件、填写列名、点击「开始处理」
+-  到 [Releases](../../releases) 下载需要的 `.exe`
+- 双击运行（Windows）
+- 按界面提示选择文件、填写列名、点击「开始处理」
 
 > 首次运行如被 Windows Defender / SmartScreen 拦截，属未签名程序的常见提示，选择「仍要运行」即可。
 
@@ -88,22 +88,24 @@ Excel 数据处理小工具集（免安装，双击即用）。
 | Excel数据清洗匹配.exe | 26.87 MB | `36E93701278E4E0C9AFC9D51D4300AB287BF79EBD3A65BE655652481F22519A4` |
 | 批量改Excel字段下信息.exe | 26.87 MB | `3805D6D12BE2E9D39604FAE279F432501A252742CFA0BDE918110A70B507B71B` |
 
+---
+
 # deepseek安装后启动快捷方式
 
 ## 安装命令
-1. npx @deepseek-ai/dsh web
+- npx @deepseek-ai/dsh web
 启动成功后，浏览器自动打开 `http://127.0.0.1:3080`，在 Settings → Models 中填入你的 DeepSeek API Key（`sk-` 开头）即可使用。
 
 ## 全局安装
-1. 执行命令
+- 执行命令
 > npm install -g @deepseek-ai/dsh
-2. 验证安装
+- 验证安装
 > dsh --version
-3. 启动页面
+- 启动页面
 > dsh web
 
 ## 超时安装切换npm国内镜像
 首次安装一般需要3-5分钟，如果时间太长，可用下面的命令
 > npm config set registry https://registry.npmmirror.com
 
-## 到 [Releases](../../releases) 下载需要的 `.exe`
+- 到 [Releases](../../releases) 下载需要的 `.exe`
