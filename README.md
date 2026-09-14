@@ -106,4 +106,4 @@ Excel 数据处理小工具集（免安装，双击即用）。
 首次安装一般需要3-5分钟，如果时间太长，可用下面的命令
 > npm config set registry https://registry.npmmirror.com
 
-> 到 [Releases](../../releases) 下载需要的 `.exe`
+## 到 [Releases](../../releases) 下载需要的 `.exe`
