@@ -6,10 +6,12 @@ Excel 数据处理小工具集（免安装，双击即用）。
 
 **请到 [Releases](../../releases) 页面下载最新的 `.exe` 文件。**
 
-| 工具 | 说明 |
+| 下载文件 | 对应工具 |
 |---|---|
-| `Excel数据清洗匹配.exe` | 成品编号清洗与匹配 |
-| `批量改Excel字段下信息.exe` | 批量修改 Excel 指定字段（列）下的信息 |
+| `ExcelDataCleanMatch-v1.0.0.exe` | Excel数据清洗匹配（成品编号清洗与匹配） |
+| `BatchUpdateExcelFields-v1.0.0.exe` | 批量改Excel字段下信息 |
+
+> 说明：GitHub 会把 Release 资源名中的中文字符截断，因此资产使用英文名；**工具本身界面仍为中文**，下载后双击即可运行。
 
 ---
 
