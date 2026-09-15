@@ -86,10 +86,14 @@ def normalize(s, strip_bracket=False):
 
 
 # ============================================================================
-# 【本次修复的核心】多级"派生"匹配
+# 多级"派生"匹配
 #
-# 思路：不再只做一种匹配，而是对同一个值生成多种等价写法，逐个尝试：
+# 思路：不再只做一种匹配，而是对同一个值生成多种等价写法，逐个尝试。
+#   进入规则之前，键会先过 clean_key()：normalize 之后抹掉尾部句点
+#       （123. = 123，这样后面前导零/去序号等规则也能继续组合生效）
+#   然后是 10 条派生规则，顺序即优先级：
 #   精确 → 英寸号当 in → 英寸号去掉 → 去尾部 -序号 → 去全部尾部 -序号
+#        → 去尾部 -序号再去了横杠 → 括号内外互换 → 去括号内容
 #        → 去所有横杠 → 数字去前导零
 # 并且把【对照表的正确编号】也一并建索引，
 # 这样 "123-1 找 123" 和 "123 找 123-1" 两个方向都能命中。
@@ -103,6 +107,34 @@ def _inch_in(s):
 def _inch_drop(s):
     """直接去掉英寸号：7"Plate -> 7Plate"""
     return s.replace('"', '')
+
+
+# 尾部句点（半角 . 和全角 。）—— Excel/系统导出的编号常常多带一个句点
+_TAIL_DOT = '.。'
+
+
+def _strip_tail_dot(s):
+    """去掉尾部句点：123. -> 123
+
+    只删【结尾】的句点，中间的不动，所以 1.5、A.B.C 完全不受影响。
+    123.. 这类连续多个也会一次去干净（rstrip 是重复剥离）。
+    """
+    return s.rstrip(_TAIL_DOT)
+
+
+def clean_key(s, strip_bracket=False):
+    """【匹配专用键】= normalize 之后再抹掉尾部句点
+
+    为什么放在这里、而不是当成一条派生规则：
+      "0650090." 这种是【尾部句点 + 前导零】的组合，
+      单条规则去不掉前导零（_num_lz 要求整串都是数字）。
+      在键上先统一抹掉句点，下面 10 条规则就都能正常组合生效了，
+      并且建索引和查询两侧都走这个函数，天然对称、不会漏方向。
+
+    注意：normalize() 本身不动，所以输出到 Excel 的"清洗后编号"列
+    仍由 clean_match 决定（那边也调 clean_key，见该文件）。
+    """
+    return _strip_tail_dot(normalize(s, strip_bracket))
 
 
 def _strip_suffix(s):
@@ -192,8 +224,8 @@ def build_index(pairs):
     """
     idx = {name: {} for name, _ in DERIVS}
     for raw_key, raw_val in pairs:
-        nk = normalize(raw_key).lower()
-        nv = normalize(raw_val).lower()
+        nk = clean_key(raw_key).lower()
+        nv = clean_key(raw_val).lower()
         for name, fn in DERIVS:
             dk = fn(nk)
             if dk:
@@ -208,9 +240,12 @@ def lookup(raw, idx, strip_bracket=False):
     """
     返回 (正确编号, 命中规则, 是否歧义)
     """
-    n = normalize(raw, strip_bracket).lower()
+    plain = normalize(raw, strip_bracket)
+    n = _strip_tail_dot(plain).lower()
     if not n:
         return "", "", False
+    # 原值带尾部句点时，在规则名前加个前缀，方便在日志里看出"是这句点救了它"
+    prefix = '去尾部句点+' if n != plain.lower() else ''
     for name, fn in DERIVS:
         k = fn(n)
         if not k:
@@ -220,5 +255,6 @@ def lookup(raw, idx, strip_bracket=False):
             # 择优：先"来源=原始编号"(prio 0)，再取较短的，最后按字符串稳定排序
             best = sorted(cands, key=lambda x: (x[1], len(str(x[0])), str(x[0])))[0]
             distinct = {str(c[0]) for c in cands}
-            return best[0], name, len(distinct) > 1
+            rule = ('去尾部句点' if name == '精确' else prefix + name) if prefix else name
+            return best[0], rule, len(distinct) > 1
     return "", "", False

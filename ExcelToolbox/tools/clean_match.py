@@ -10,7 +10,7 @@ from tkinter import filedialog, messagebox, scrolledtext
 from openpyxl import load_workbook
 
 from .base import ToolFrame
-from .matching import normalize, build_index, lookup, to_text
+from .matching import clean_key, build_index, lookup, to_text
 
 
 class CleanMatchTool(ToolFrame):
@@ -65,9 +65,11 @@ class CleanMatchTool(ToolFrame):
         # ========== 规则说明 ==========
         frame_rule = tk.LabelFrame(self, text="清洗 + 匹配规则（自动执行）")
         frame_rule.pack(padx=10, pady=5, fill=tk.X)
-        rule_text = """清洗规则：去所有空白(NBSP/零宽字符) → NFKC全角转半角 → 英寸号 ”″ → " → 各种横杠 –—−－ → - → 中文括号转英文
+        rule_text = """清洗规则：去所有空白(NBSP/零宽字符) → NFKC全角转半角 → 英寸号 ”″ → " → 各种横杠 –—−－ → - → 中文括号转英文 → 去尾部句点（123. = 123）
 匹配规则：① 精确  ② 英寸→in（7”Plate = 7inPlate）  ③ 英寸去除  ④ 去尾部序号（123-1 = 123，双向）
-          ⑤ 去全部尾部序号  ⑥ 去横杠  ⑦ 数字去前导零
+          ⑤ 去全部尾部序号  ⑥ 去尾部序号+去横杠  ⑦ 括号内外互换（123(FC2002) = FC2002(123)，双向）
+          ⑧ 去括号内容  ⑨ 去横杠  ⑩ 数字去前导零（0650090 = 650090，双向）
+以上 10 条逐级尝试、命中即止；该值带尾部句点时，匹配状态会显示为「去尾部句点+命中规则」
 输出：原列 → 清洗后编号 → 正确成品编号 →（可选）匹配状态"""
         tk.Label(frame_rule, text=rule_text, fg="#666", justify="left", anchor="w").pack(padx=5, pady=5, fill=tk.X)
 
@@ -233,7 +235,7 @@ class CleanMatchTool(ToolFrame):
                 continue
             total_row += 1
 
-            clean_val = normalize(raw_val, strip_bracket)
+            clean_val = clean_key(raw_val, strip_bracket)
             ws.cell(row=row, column=col_clean_i).value = clean_val
             if not clean_val:
                 continue
