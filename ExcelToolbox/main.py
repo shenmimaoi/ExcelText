@@ -8,6 +8,7 @@ Excel 工具箱 —— 统一入口
 运行：python main.py
 打包：python build.py   （或双击 build.cmd）
 """
+import os
 import sys
 import traceback
 import tkinter as tk
@@ -16,6 +17,15 @@ from tools import TOOLS, tool_names
 
 APP_NAME = "Excel 工具箱"
 APP_VERSION = "v2.0.0"
+
+# 窗口图标（打包时用 --add-data 打进包；源码运行时从项目目录读）
+ICON_NAME = "dsh-icon.ico"
+
+
+def resource_path(name):
+    """兼容「源码运行」与「PyInstaller 打包」两种情况的资源路径。"""
+    base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, name)
 
 # 配色
 C_SIDE_BG = "#2B3A4A"
@@ -36,6 +46,7 @@ class App:
         self.root.geometry("1000x780")
         self.root.minsize(900, 620)
         self.root.configure(bg=C_MAIN_BG)
+        self._apply_icon()
 
         self._instances = {}    # 工具索引 -> 面板实例（懒加载，切换时保留状态）
         self._current = None
@@ -47,6 +58,16 @@ class App:
 
         if TOOLS:
             self.select(0)
+
+    def _apply_icon(self):
+        """设置窗口/任务栏图标（图标缺失时静默跳过，不影响使用）。"""
+        path = resource_path(ICON_NAME)
+        if not os.path.exists(path):
+            return
+        try:
+            self.root.iconbitmap(path)
+        except Exception:
+            pass
 
     # ------------------------------------------------------------------
     # 左侧：功能菜单

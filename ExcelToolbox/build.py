@@ -16,6 +16,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "Excel工具箱"
 ENTRY = "main.py"
 
+# 程序图标（.ico，需含多种尺寸）；文件不存在时自动改用默认图标
+ICON = os.path.join(HERE, "dsh-icon.ico")
+
 # 明确用不到的重量级库，排除后体积更小（不影响本工具功能）
 EXCLUDES = [
     "numpy", "pandas", "scipy", "matplotlib", "PIL", "IPython",
@@ -47,6 +50,15 @@ def main():
         "--windowed",         # 不显示控制台窗口
         "--name", APP_NAME,
     ]
+
+    # 程序图标（找不到就跳过，不影响打包）
+    if os.path.exists(ICON):
+        cmd += ["--icon", ICON]                       # exe 文件本身的图标
+        cmd += ["--add-data", ICON + os.pathsep + "."]  # 同时打进包，供窗口标题栏使用
+        print("使用图标:", ICON)
+    else:
+        print("未找到图标，使用默认图标:", ICON)
+
     for m in EXCLUDES:
         cmd += ["--exclude-module", m]
     cmd.append(ENTRY)
