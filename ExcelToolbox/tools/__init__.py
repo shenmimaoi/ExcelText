@@ -9,11 +9,13 @@
 """
 from .clean_match import CleanMatchTool
 from .keyword_edit import KeywordEditTool
+from .duo_excel_ui import DuoExcelUI
 
 # 左侧菜单顺序 = 这个列表的顺序
 TOOLS = [
     CleanMatchTool,      # 编号清洗匹配
     KeywordEditTool,     # 关键词批量改列
+    DuoExcelUI,          # 多个表按照sheet名和选定字段进行合并
 ]
 
 
